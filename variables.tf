@@ -142,6 +142,24 @@ variable "encrypt_at_rest_kms_key_id" {
   description = "The KMS key ID to encrypt the Elasticsearch domain with. If not specified, then it defaults to using the AWS/Elasticsearch service KMS key"
 }
 
+variable "domain_endpoint_options_custom_endpoint_certificate_arn" {
+  type        = string
+  default     = null
+  description = "ACM certificate ARN for your custom endpoint"
+}
+
+variable "domain_endpoint_options_custom_endpoint" {
+  type        = string
+  default     = null
+  description = "Fully qualified domain for your custom endpoint"
+}
+
+variable "domain_endpoint_options_custom_endpoint_enabled" {
+  type        = bool
+  default     = null
+  description = "Whether to enable custom endpoint for the Elasticsearch domain"
+}
+
 variable "domain_endpoint_options_enforce_https" {
   type        = bool
   default     = true

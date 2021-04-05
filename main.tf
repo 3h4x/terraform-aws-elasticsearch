@@ -127,6 +127,9 @@ resource "aws_elasticsearch_domain" "default" {
   }
 
   domain_endpoint_options {
+    custom_endpoint_enabled = var.domain_endpoint_options_custom_endpoint_enabled
+    custom_endpoint_certificate_arn = var.domain_endpoint_options_custom_endpoint_certificate_arn != null ? var.domain_endpoint_options_custom_endpoint_certificate_arn : module.domain_hostname_acm_request_certificate.arn
+    custom_endpoint = var.domain_endpoint_options_custom_endpoint != null ? var.domain_endpoint_options_custom_endpoint : module.domain_hostname.hostname
     enforce_https       = var.domain_endpoint_options_enforce_https
     tls_security_policy = var.domain_endpoint_options_tls_security_policy
   }
@@ -203,7 +206,7 @@ resource "aws_elasticsearch_domain" "default" {
 
   tags = module.this.tags
 
-  depends_on = [aws_iam_service_linked_role.default]
+  depends_on = [aws_iam_service_linked_role.default, module.kibana_hostname_acm_request_certificate]
 }
 
 data "aws_iam_policy_document" "default" {
@@ -287,4 +290,14 @@ module "kibana_hostname" {
   records = [join("", aws_elasticsearch_domain.default.*.endpoint)]
 
   context = module.this.context
+}
+
+module "domain_hostname_acm_request_certificate" {
+  source = "cloudposse/acm-request-certificate/aws"
+  version = "0.13.1"
+
+  enabled  = module.this.enabled && var.kibana_hostname_enabled
+  domain_name                       = module.domain_hostname.hostname
+  process_domain_validation_options = false
+  ttl                               = "300"
 }
